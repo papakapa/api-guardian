@@ -1,15 +1,15 @@
-import type { Contract, ContractEndpoint } from "../../types/types";
+import type { Contract, ContractEndpoint } from '../../types/types';
 import {
   type DecoratorSummaryItem,
   DecoratorType,
   isNestHttpMethodComponent,
   nestHttpVerbForComponent,
-} from "./utils/decorators";
+} from './utils/decorators';
 import {
   extractParamNamesFromRouteSegments,
   normalizeContractPath,
-} from "./utils/paths";
-import { mergeParamNamesUniqueOrdered } from "./utils/params";
+} from './utils/paths';
+import { mergeParamNamesUniqueOrdered } from './utils/params';
 
 export const buildContractFromNestDecoratorSummary = (
   summary: DecoratorSummaryItem[],
@@ -17,10 +17,10 @@ export const buildContractFromNestDecoratorSummary = (
   const controllerPrefixesByClass = new Map<string, string[]>();
 
   for (const item of summary) {
-    if (item.type !== DecoratorType.Class || item.component !== "controller") {
+    if (item.type !== DecoratorType.Class || item.component !== 'controller') {
       continue;
     }
-    const prefixes = item.controllerPrefixes ?? [""];
+    const prefixes = item.controllerPrefixes ?? [''];
     const prev = controllerPrefixesByClass.get(item.className);
     const merged = prev ? [...prev, ...prefixes] : [...prefixes];
     controllerPrefixesByClass.set(item.className, [...new Set(merged)]);
@@ -37,8 +37,8 @@ export const buildContractFromNestDecoratorSummary = (
       continue;
     }
     const method = nestHttpVerbForComponent(item.component)!;
-    const subpath = item.handlerSubpath ?? "";
-    const prefixes = controllerPrefixesByClass.get(item.className) ?? [""];
+    const subpath = item.handlerSubpath ?? '';
+    const prefixes = controllerPrefixesByClass.get(item.className) ?? [''];
 
     for (const prefix of prefixes) {
       const routePath = normalizeContractPath([prefix, subpath]);
@@ -57,6 +57,15 @@ export const buildContractFromNestDecoratorSummary = (
       if (mergedParams.length > 0) {
         ep.params = mergedParams;
       }
+
+      if (item.handlerParamTypes) {
+        ep.paramTypes = item.handlerParamTypes;
+      }
+
+      if (item.handlerBodyTypes) {
+        ep.bodyType = item.handlerBodyTypes;
+      }
+
       endpoints.push(ep);
     }
   }
@@ -68,4 +77,4 @@ export const buildContractFromNestDecoratorSummary = (
   );
 
   return { endpoints };
-}
+};

@@ -5,7 +5,9 @@ export type {
   DiffMode,
   ExtractContractOptions,
   ParserTarget,
+  Primitive,
 } from "./types/types";
+export { NEST_BODY_ROOT_KEY } from "./types/types";
 export { extractContract, extractNestContract } from "./parsers";
 export {
   diffContracts,

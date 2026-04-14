@@ -3,3 +3,4 @@
 /build
 *.tsbuildinfo
 /.api-guardian
+.idea

@@ -1,8 +1,23 @@
+export type Primitive = "string" | "number" | "boolean";
+
+/**
+ * JSON property key for a bare Nest `@Body()` (entire request body) in
+ * {@link ContractEndpoint.bodyType}.
+ */
+export const NEST_BODY_ROOT_KEY = "*";
+
 export type ContractEndpoint = {
   path: string;
   method: string;
   /** Route / handler param names (no types in MVP). */
   params?: string[];
+  /** Primitive types for route params; only parameters with primitive annotations are listed. */
+  paramTypes?: Record<string, Primitive>;
+  /**
+   * Primitive body fields: `@Body('x')` → key `x`; `@Body()` → key {@link NEST_BODY_ROOT_KEY}.
+   * Duplicate keys follow last-wins (decorator order, then parameter order).
+   */
+  bodyType?: Record<string, Primitive>;
 };
 
 export type Contract = {

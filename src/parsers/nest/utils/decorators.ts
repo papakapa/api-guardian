@@ -1,7 +1,12 @@
 import { Node, SyntaxKind, type Decorator, type SourceFile } from "ts-morph";
 
+import type { Primitive } from "../../../types/types";
 import { extractControllerPrefixes, extractHandlerSubpath } from "./paths";
-import { extractParamNamesFromMethod } from "./params";
+import {
+  extractBodyTypesFromMethod,
+  extractParamNamesFromMethod,
+  extractParamTypesFromMethod,
+} from "./params";
 import { decoratorNameFromText } from "./text";
 
 export enum DecoratorType {
@@ -19,6 +24,13 @@ export type DecoratorSummaryItem = {
   controllerPrefixes?: string[];
   handlerSubpath?: string;
   handlerParamNames?: string[];
+  handlerParamTypes?: Record<string, Primitive>;
+  /**
+   * bare `@Body()` uses the root key from `NEST_BODY_ROOT_KEY` in contract output;
+   * `@Body('key')` uses `key`.
+   * Later decorators / parameters win on duplicate keys.
+   */
+  handlerBodyTypes?: Record<string, Primitive>;
 };
 
 const NEST_HTTP_COMPONENT_TO_VERB: Record<string, string> = {
@@ -101,6 +113,8 @@ export function summarizeNestDecorators(
       item.handlerSubpath = extractHandlerSubpath(dec as Decorator);
       if (Node.isMethodDeclaration(parent)) {
         item.handlerParamNames = extractParamNamesFromMethod(parent);
+        item.handlerParamTypes = extractParamTypesFromMethod(parent);
+        item.handlerBodyTypes = extractBodyTypesFromMethod(parent);
       }
     }
 
